@@ -1,6 +1,7 @@
 #pragma once
 
 #include <limits>
+#include <optional>
 #include <ostream>
 #include <type_traits>
 #include <utility>
@@ -114,6 +115,16 @@ struct strong {
   constexpr strong& operator&=(strong const& o) {
     v_ &= o.v_;
     return *this;
+  }
+
+  template <typename Fn>
+  auto transform(Fn&& fn) const
+      -> std::optional<std::decay_t<decltype(fn(std::declval<strong>()))>> {
+    if (*this == invalid()) {
+      return std::nullopt;
+    } else {
+      return {fn(*this)};
+    }
   }
 
   constexpr bool operator==(strong const& o) const { return v_ == o.v_; }
